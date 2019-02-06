@@ -8,8 +8,8 @@ require "json"
 require_relative "../models/types"
 require_relative "../models/exchange_rate"
 
-# Parses Intraday Time Series data from Alpha Vantage.
-class ParseIntradayTimeSeries
+# Parses Time Series data from Alpha Vantage.
+class ParseTimeSeries
   include Dry::Monads::Try::Mixin
 
   # @param data [String] a string containing raw JSON data
@@ -30,12 +30,12 @@ class ParseIntradayTimeSeries
   def extract_metadata(data)
     Try do
       metadata = Metadata.new(
-        from_currency: data.dig("Meta Data", "2. From Symbol"),
-        to_currency: data.dig("Meta Data", "3. To Symbol"),
-        timezone: data.dig("Meta Data", "7. Time Zone")
+        from_currency: dig_matching(data["Meta Data"], /From Symbol/),
+        to_currency: dig_matching(data["Meta Data"], /To Symbol/),
+        timezone: dig_matching(data["Meta Data"], /Time Zone/)
       )
 
-      [metadata, data["Time Series FX (5min)"]]
+      [metadata, dig_matching(data, /Time Series/)]
     end.to_result
   end
 
@@ -57,14 +57,23 @@ class ParseIntradayTimeSeries
   end
 
   def parse_datetime(timezone, datetime)
-    match_data = timezone.match(/GMT(?<sign>\+|-)(?<offset>\d+)/)
-    suffix = if match_data
-               "#{match_data[:sign]}#{match_data[:offset].rjust(2, '0')}:00"
-             else
-               "Z"
-             end
+    hour_part = datetime.size > 10 ? "" : "T00:00:00"
 
-    DateTime.iso8601(datetime.sub(" ", "T") + suffix)
+    DateTime.iso8601(datetime.sub(" ", "T") +
+                     hour_part +
+                     timezone_suffix(timezone))
+  end
+
+  def timezone_suffix(timezone)
+    if (match_data = timezone.match(/GMT(?<sign>\+|-)(?<offset>\d+)/))
+      "#{match_data[:sign]}#{match_data[:offset].rjust(2, '0')}:00"
+    else
+      "Z"
+    end
+  end
+
+  def dig_matching(data, matcher)
+    data.find { |k, _| k =~ matcher }&.last
   end
 
   # Holds the Time Series' metadata.

@@ -2,14 +2,14 @@
 
 require "spec_helper"
 
-require_relative "../../app/services/parse_intraday_time_series"
+require_relative "../../app/services/parse_time_series"
 
-RSpec.describe ParseIntradayTimeSeries, type: :service do
-  context "with parseable data" do
+RSpec.describe ParseTimeSeries, type: :service do
+  RSpec.shared_examples "a time series parser" do |dataset|
     let(:time_series) { subject.call(raw_data).value! }
 
     let(:raw_data) do
-      File.read(File.expand_path("../fixtures/rates/intraday.json", __dir__))
+      File.read(File.expand_path("../fixtures/rates/#{dataset}.json", __dir__))
     end
 
     it "defines currencies correctly" do
@@ -23,6 +23,11 @@ RSpec.describe ParseIntradayTimeSeries, type: :service do
       expect(ordered).to be(true)
     end
   end
+
+  it_behaves_like "a time series parser", "intraday"
+  it_behaves_like "a time series parser", "daily"
+  it_behaves_like "a time series parser", "weekly"
+  it_behaves_like "a time series parser", "monthly"
 
   context "with bad JSON" do
     let(:time_series) { subject.call("/./.jbadjson") }
