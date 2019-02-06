@@ -1,0 +1,30 @@
+AllCops:
+  TargetRubyVersion: 2.5
+  TargetRailsVersion: 5.2
+  Exclude:
+    - bin/**/*
+    - db/schema.rb
+    - node_modules/**/*
+    - config/**/*.rb
+    - Rakefile
+    - .pryrc
+    - vendor/**/*
+
+Rails:
+  Enabled: true
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*.rb
+    - app/**/concerns/**/*.rb
+
+Style/SignalException:
+  EnforcedStyle: semantic
+
+Style/Documentation:
+  Exclude:
+    - config/**/*.rb
+    - db/migrate/*.rb
