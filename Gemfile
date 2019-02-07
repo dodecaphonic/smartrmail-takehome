@@ -22,6 +22,7 @@ gem "dry-struct", "~> 0.6.0"
 gem "dry-types", "~> 0.14.0"
 
 gem "http", "~> 4.0.3"
+gem "sucker_punch", "~> 2.0"
 
 group :development, :test do
   gem "byebug", platforms: %i[mri mingw x64_mingw]
