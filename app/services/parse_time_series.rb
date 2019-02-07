@@ -11,17 +11,27 @@ require_relative "../models/exchange_rate"
 # Parses Time Series data from Alpha Vantage.
 class ParseTimeSeries
   include Dry::Monads::Try::Mixin
+  include Dry::Monads::Result::Mixin
 
   # @param data [String] a string containing raw JSON data
   # @return [Dry::Monads::Result<StandardError, Array<ExchangeRate>>]
   def call(data)
     parse_json(data)
+      .bind(&method(:fail_on_bad_data))
       .bind(&method(:extract_metadata))
       .bind(&method(:build_time_series))
       .fmap { |series| series.sort_by(&:point_in_time) }
   end
 
   private
+
+  def fail_on_bad_data(data)
+    if data["Meta Data"]
+      Success(data)
+    else
+      Failure(StandardError.new("Missing time series metadata"))
+    end
+  end
 
   def parse_json(data)
     Try { JSON.parse(data) }.to_result
