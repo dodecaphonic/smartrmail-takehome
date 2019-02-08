@@ -30,4 +30,8 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  currencies:
+    BRL: "BRL"
+    USD: "USD"
+    AUD: "AUD"
+    EUR: "EUR"
