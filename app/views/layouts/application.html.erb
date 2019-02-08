@@ -6,10 +6,22 @@
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= stylesheet_pack_tag 'application' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application' %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="w-100 bg-black white-70 sans-serif">
+    <header class="bg-white-70 black w-100 ph3 pv3 pv4-ns ph4-m ph5-l">
+      <nav class="f6 fw6 ttu tracked">
+        <%= link_to "Fluctuations", root_url, class: "link black" %>
+      </nav>
+    </header>
+
+    <main>
+      <section>
+        <%= yield %>
+      </section>
+    </main>
   </body>
 </html>

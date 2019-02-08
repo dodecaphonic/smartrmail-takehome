@@ -1,0 +1,32 @@
+<div class="white ph3 ph5-ns mb5"
+     data-controller="exchange-rates"
+     data-exchange-rates-selected-currency="USD"
+     data-exchange-rates-selected-view="intraday">
+
+  <h1 data-target="exchange-rates.currency"></h1>
+
+  <div class="currency-switcher">
+    <% t("currencies").except(:BRL).each do |short, long| %>
+      <a class="f6 link dim br1 ph3 pv2 mb2 dib black bg-white pointer"
+         data-currency="<%= short %>"
+         data-action="click->exchange-rates#onSwitchCurrency">
+        <%= long %>
+      </a>
+    <% end %>
+  </div>
+
+  <div id="current-rates" class="flex items-center white bg-light-silver w-20 h3 br2">
+    <div class="flex-auto flex flex-column tc">
+      <label>Buy</label>
+      <span data-target="exchange-rates.openRate"></span>
+    </div>
+
+    <div class="flex-auto flex flex-column tc">
+      <label>Sell</label>
+      <span data-target="exchange-rates.closeRate"></span>
+    </div>
+  </div>
+
+  <div id="graph">
+  </div>
+</div>

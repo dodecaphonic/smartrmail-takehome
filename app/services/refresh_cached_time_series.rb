@@ -28,26 +28,28 @@ class RefreshCachedTimeSeries
                       .first
 
     if !earliest_cached || 5.minutes.ago > earliest_cached.updated_at
-      fetch(period).fmap(&method(:store).curry.call(period))
+      fetch(period).bind(&method(:store).curry.call(period))
     else
       M::Task[:immediate] { :done }
     end
   end
 
   def store(period, series)
-    series.each do |(from_currency, to_currency), values|
-      CachedTimeSeries
-        .where(from_currency: from_currency, to_currency: to_currency,
-               period: period)
-        .first_or_initialize
-        .update!(time_series: values)
+    M::Task[:io] do
+      series.each do |(from_currency, to_currency), values|
+        CachedTimeSeries
+          .where(from_currency: from_currency, to_currency: to_currency,
+                 period: period)
+          .first_or_initialize
+          .update!(time_series: values)
+      end
+
+      # Alpha Vantage gives us only 5 requests per minute. We sleep to
+      # space them out.
+      sleep 60
+
+      :done
     end
-
-    # Alpha Vantage gives us only 5 requests per minute. We sleep to
-    # space them out.
-    sleep 60
-
-    :done
   end
 
   def fetch(period)

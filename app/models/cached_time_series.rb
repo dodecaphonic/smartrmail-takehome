@@ -9,6 +9,13 @@ class CachedTimeSeries < ApplicationRecord
 
   serialize :time_series, JSON
 
+  def self.latest_rate_for(currency)
+    intraday
+      .find_by(from_currency: currency)
+      &.time_series
+      &.last
+  end
+
   def time_series
     self["time_series"].map do |er|
       ExchangeRate.new(
